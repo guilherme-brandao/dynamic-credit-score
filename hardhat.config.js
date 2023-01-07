@@ -15,7 +15,7 @@ module.exports = {
     goerli: {
       chainId: 5,
       url: process.env.GOERLI_RPC_URL,
-      accounts:[process.env.PRIVATE_KEY],
+      accounts:[process.env.USER_KEY],
     }
   },
   namedAccounts: {
