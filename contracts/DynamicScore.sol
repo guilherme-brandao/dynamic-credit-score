@@ -2,6 +2,7 @@
 pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "hardhat/console.sol";
 
 contract DynamicScore is ERC721URIStorage {
     struct User {
@@ -18,24 +19,28 @@ contract DynamicScore is ERC721URIStorage {
     event MetadataUpdated(uint256 indexed tokenId);
     event NftReturned(uint256 indexed NFTId);
 
-    constructor() ERC721("DynamicScore", "DSC") {}
+    constructor() ERC721("DynamicScore", "DSC") {
+        console.log("Deploying DynamicScore NFT Contract!"); 
+    }
 
     // This function is used to update the metadata for a specific NFT.
     function updateUserNFT(
-        uint256 userId,
+        address userId,
         uint256 score,
         bool enthusiast,
         bool blueship
     ) public {
         // Update the metadata and emit the event.
-        users[userId].score = score;
-        users[userId].enthusiast = enthusiast;
-        users[userId].blueship = blueship;
 
-        emit MetadataUpdated(userId);
+        users[userIndex[userId]].score = score;
+        users[userIndex[userId]].enthusiast = enthusiast;
+        users[userIndex[userId]].blueship = blueship;
+
+        emit MetadataUpdated(userIndex[userId]);
     }
 
     function createUserNFT() public {
+        require(userIndex[msg.sender] > 0, "User already has an NFT");
         uint256 newUserId = users.length;
 
         // Initial stats
@@ -46,6 +51,11 @@ contract DynamicScore is ERC721URIStorage {
         users.push(User(score, enthusiast, blueship));
 
         _safeMint(msg.sender, newUserId);
+        userIndex[msg.sender] = newUserId;
         emit NftReturned(newUserId);
+    }
+
+    function getUser(uint256 index) public view returns (User memory) {
+        return users[index];
     }
 }
