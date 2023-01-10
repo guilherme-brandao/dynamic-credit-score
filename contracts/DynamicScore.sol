@@ -30,8 +30,12 @@ contract DynamicScore is ERC721URIStorage {
         bool enthusiast,
         bool blueship
     ) public {
-        // Update the metadata and emit the event.
+        require(
+            _isApprovedOrOwner(_msgSender(), userIndex[msg.sender]),
+            "Sender is not the owner of this NFT"
+        );
 
+        // Update the metadata and emit the event.
         users[userIndex[userId]].score = score;
         users[userIndex[userId]].enthusiast = enthusiast;
         users[userIndex[userId]].blueship = blueship;
@@ -40,7 +44,7 @@ contract DynamicScore is ERC721URIStorage {
     }
 
     function createUserNFT() public {
-        require(userIndex[msg.sender] > 0, "User already has an NFT");
+        require(userIndex[msg.sender] >= 0, "User already has an NFT");
         uint256 newUserId = users.length;
 
         // Initial stats
